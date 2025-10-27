@@ -3,14 +3,17 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { CardData } from '../types';
 import { RARITY_COLORS, RARITY_GLOW_INTENSITY } from '../types';
+import type { CardEffect } from '../effects/cardEffects';
+import { CardEffects } from './CardEffects';
 
 interface Card3DProps {
   card: CardData;
   position: [number, number, number];
   rotation: [number, number, number];
+  effect: CardEffect;
 }
 
-export function Card3D({ card, position, rotation }: Card3DProps) {
+export function Card3D({ card, position, rotation, effect }: Card3DProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
 
@@ -34,8 +37,8 @@ export function Card3D({ card, position, rotation }: Card3DProps) {
       groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, position[1], 0.1);
     }
 
-    // Scale up slightly on hover
-    const targetScale = hovered ? 1.2 : 1;
+    // Scale up more on hover - each card gets bigger
+    const targetScale = hovered ? 1.4 : 1;
     const currentScale = groupRef.current.scale.x;
     const newScale = THREE.MathUtils.lerp(currentScale, targetScale, 0.1);
     groupRef.current.scale.set(newScale, newScale, newScale);
@@ -124,6 +127,39 @@ export function Card3D({ card, position, rotation }: Card3DProps) {
           </mesh>
         </>
       )}
+
+      {/* Ice effect overlay */}
+      {hovered && effect === 'ice' && (
+        <mesh position={[0, 0, cardThickness / 2 + 0.02]}>
+          <planeGeometry args={[cardWidth, cardHeight]} />
+          <meshStandardMaterial
+            color="#88ccff"
+            emissive="#88ccff"
+            emissiveIntensity={0.8}
+            transparent
+            opacity={0.3}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      )}
+
+      {/* Fire effect overlay */}
+      {hovered && effect === 'fire' && (
+        <mesh position={[0, 0, cardThickness / 2 + 0.02]}>
+          <planeGeometry args={[cardWidth, cardHeight]} />
+          <meshStandardMaterial
+            color="#ff6600"
+            emissive="#ff3300"
+            emissiveIntensity={1.5}
+            transparent
+            opacity={0.25}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      )}
+
+      {/* Particle effects for each element */}
+      <CardEffects effect={effect} hovered={hovered} cardWidth={cardWidth} cardHeight={cardHeight} />
     </group>
   );
 }

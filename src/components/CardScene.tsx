@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { Card3D } from './Card3D';
+import { getCardEffect } from '../effects/cardEffects';
 import type { CardData } from '../types';
 
 interface CardSceneProps {
@@ -18,7 +19,7 @@ export function CardScene({ cards }: CardSceneProps) {
 
     const angle = startAngle + (angleStep * index);
     const x = Math.sin(angle) * radius;
-    const y = -Math.cos(angle) * radius * 0.3 - 2; // Lower and curved
+    const y = -Math.cos(angle) * radius * 0.3; // Centered vertically
     const z = -Math.cos(angle) * 2; // Depth for 3D fan effect
 
     // Rotate cards to face the camera
@@ -55,7 +56,8 @@ export function CardScene({ cards }: CardSceneProps) {
         {/* Render cards in a fan layout */}
         {cards.map((card, index) => {
           const { position, rotation } = calculateFanPosition(index, cards.length);
-          return <Card3D key={card.id} card={card} position={position} rotation={rotation} />;
+          const effect = getCardEffect(index);
+          return <Card3D key={card.id} card={card} position={position} rotation={rotation} effect={effect} />;
         })}
 
         {/* Camera controls */}
@@ -64,7 +66,7 @@ export function CardScene({ cards }: CardSceneProps) {
           dampingFactor={0.05}
           minDistance={8}
           maxDistance={25}
-          target={[0, -2, 0]}
+          target={[0, 0, 0]}
         />
 
         {/* Post-processing effects */}
