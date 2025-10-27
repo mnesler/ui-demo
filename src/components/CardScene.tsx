@@ -65,13 +65,15 @@ export function CardScene({ cards }: CardSceneProps) {
           enabled={false}
         />
 
-        {/* Post-processing effects */}
-        <EffectComposer>
+        {/* Post-processing effects - optimized */}
+        <EffectComposer multisampling={0}>
           <Bloom
             intensity={2.0}
             luminanceThreshold={0.1}
             luminanceSmoothing={0.9}
-            mipmapBlur
+            mipmapBlur={false}
+            levels={5}
+            kernelSize={3}
           />
         </EffectComposer>
       </Canvas>

@@ -13,9 +13,9 @@ interface CardEffectsProps {
 export function CardEffects({ effect, hovered, cardWidth, cardHeight }: CardEffectsProps) {
   const particlesRef = useRef<THREE.Points>(null);
 
-  // Create particles for effects
+  // Create particles for effects - reduced count for performance
   const { positions, colors } = useMemo(() => {
-    const particleCount = effect === 'fire' || effect === 'ice' ? 100 : 50;
+    const particleCount = effect === 'fire' || effect === 'ice' ? 30 : 20;
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
 
@@ -146,14 +146,16 @@ export function CardEffects({ effect, hovered, cardWidth, cardHeight }: CardEffe
   if (!hovered) return null;
 
   return (
-    <points ref={particlesRef} geometry={geometry}>
+    <points ref={particlesRef} geometry={geometry} frustumCulled={true}>
       <pointsMaterial
-        size={0.05}
+        size={0.06}
         vertexColors
         transparent
         opacity={0.8}
         blending={THREE.AdditiveBlending}
         depthWrite={false}
+        depthTest={false}
+        sizeAttenuation={false}
       />
     </points>
   );
