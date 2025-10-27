@@ -1,22 +1,34 @@
+export interface ScryfallCard {
+  id: string;
+  name: string;
+  image_uris?: {
+    small: string;
+    normal: string;
+    large: string;
+    png: string;
+    art_crop: string;
+    border_crop: string;
+  };
+  rarity: 'common' | 'uncommon' | 'rare' | 'mythic';
+}
+
 export interface CardData {
   id: string;
   name: string;
-  rarity: 'common' | 'rare' | 'epic' | 'legendary';
-  color: string;
-  attack?: number;
-  defense?: number;
+  imageUrl: string;
+  rarity: 'common' | 'uncommon' | 'rare' | 'mythic';
 }
 
 export const RARITY_COLORS = {
   common: '#888888',
-  rare: '#4169E1',
-  epic: '#9370DB',
-  legendary: '#FFD700',
+  uncommon: '#4169E1',
+  rare: '#FFD700',
+  mythic: '#FF4500',
 } as const;
 
 export const RARITY_GLOW_INTENSITY = {
   common: 0.5,
-  rare: 1.0,
-  epic: 1.5,
-  legendary: 2.5,
+  uncommon: 1.0,
+  rare: 1.5,
+  mythic: 2.5,
 } as const;
