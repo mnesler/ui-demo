@@ -63,8 +63,6 @@ export function Card3D({ card, position, rotation, effect }: Card3DProps) {
         <planeGeometry args={[cardWidth, cardHeight]} />
         <meshStandardMaterial
           map={texture}
-          emissive={rarityColor}
-          emissiveIntensity={glowIntensity}
           metalness={0.1}
           roughness={0.3}
         />
