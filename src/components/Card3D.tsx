@@ -31,29 +31,33 @@ export function Card3D({ card, position, rotation, effect }: Card3DProps) {
   }, [card.imageUrl]);
 
   // Animate the card on hover
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (!groupRef.current) return;
+
+    // Frame-rate independent animation using delta time
+    const smoothFactor = 1 - Math.pow(0.001, delta);
+    const fastSmoothFactor = 1 - Math.pow(0.0001, delta);
 
     if (!isDragging) {
       // Gentle floating animation
       if (hovered) {
         groupRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 2) * 0.1;
       } else {
-        groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, position[1], 0.1);
+        groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, position[1], smoothFactor);
       }
 
-      // Snap back to original position when not dragging
-      groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, position[0], 0.15);
+      // Snap back to original position when not dragging - smooth and fast
+      groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, position[0], smoothFactor);
 
-      // Bring hovered card slightly forward to prevent clipping
+      // Bring hovered card slightly forward to prevent clipping - instant
       const targetZ = hovered || isDragging ? position[2] + 0.2 : position[2];
-      groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, targetZ, 0.15);
+      groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, targetZ, fastSmoothFactor);
     }
 
-    // Scale up more on hover - each card gets bigger
+    // Scale up more on hover - buttery smooth animation
     const targetScale = hovered || isDragging ? 1.4 : 1;
     const currentScale = groupRef.current.scale.x;
-    const newScale = THREE.MathUtils.lerp(currentScale, targetScale, 0.1);
+    const newScale = THREE.MathUtils.lerp(currentScale, targetScale, smoothFactor);
     groupRef.current.scale.set(newScale, newScale, newScale);
   });
 
