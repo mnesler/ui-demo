@@ -44,7 +44,10 @@ export function Card3D({ card, position, rotation, effect }: Card3DProps) {
 
       // Snap back to original position when not dragging
       groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, position[0], 0.15);
-      groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, position[2], 0.15);
+
+      // Bring hovered card forward, otherwise snap back to original z
+      const targetZ = hovered || isDragging ? position[2] + 5 : position[2];
+      groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, targetZ, 0.15);
     }
 
     // Scale up more on hover - each card gets bigger
