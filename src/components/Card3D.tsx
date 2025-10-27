@@ -1,6 +1,5 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 import type { CardData } from '../types';
 import { RARITY_COLORS, RARITY_GLOW_INTENSITY } from '../types';
@@ -14,10 +13,15 @@ interface Card3DProps {
 export function Card3D({ card, position, rotation }: Card3DProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
-  const [texture] = useState(() => {
+
+  // Load texture and ensure it doesn't repeat or stretch
+  const texture = useMemo(() => {
     const loader = new THREE.TextureLoader();
-    return loader.load(card.imageUrl);
-  });
+    const tex = loader.load(card.imageUrl);
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    return tex;
+  }, [card.imageUrl]);
 
   // Animate the card on hover
   useFrame((state) => {
@@ -40,16 +44,20 @@ export function Card3D({ card, position, rotation }: Card3DProps) {
   const rarityColor = RARITY_COLORS[card.rarity];
   const glowIntensity = hovered ? RARITY_GLOW_INTENSITY[card.rarity] : 0;
 
+  // Magic card aspect ratio is 2.5:3.5 (5:7)
+  const cardWidth = 2.5;
+  const cardHeight = 3.5;
+  const cardThickness = 0.05;
+
   return (
     <group ref={groupRef} position={position} rotation={rotation}>
-      {/* Card front with texture */}
-      <RoundedBox
-        args={[2.5, 3.5, 0.05]}
-        radius={0.1}
-        smoothness={4}
+      {/* Card front face with texture */}
+      <mesh
+        position={[0, 0, cardThickness / 2]}
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
       >
+        <planeGeometry args={[cardWidth, cardHeight]} />
         <meshStandardMaterial
           map={texture}
           emissive={rarityColor}
@@ -57,15 +65,11 @@ export function Card3D({ card, position, rotation }: Card3DProps) {
           metalness={0.1}
           roughness={0.3}
         />
-      </RoundedBox>
+      </mesh>
 
-      {/* Card back (black) */}
-      <RoundedBox
-        args={[2.5, 3.5, 0.05]}
-        radius={0.1}
-        smoothness={4}
-        position={[0, 0, -0.05]}
-      >
+      {/* Card back face (black) */}
+      <mesh position={[0, 0, -cardThickness / 2]} rotation={[0, Math.PI, 0]}>
+        <planeGeometry args={[cardWidth, cardHeight]} />
         <meshStandardMaterial
           color="#1a1a1a"
           emissive={rarityColor}
@@ -73,24 +77,52 @@ export function Card3D({ card, position, rotation }: Card3DProps) {
           metalness={0.5}
           roughness={0.5}
         />
-      </RoundedBox>
+      </mesh>
 
-      {/* Glow border effect */}
+      {/* Card edges (sides) */}
+      <mesh position={[cardWidth / 2, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <planeGeometry args={[cardThickness, cardHeight]} />
+        <meshStandardMaterial color="#1a1a1a" />
+      </mesh>
+      <mesh position={[-cardWidth / 2, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
+        <planeGeometry args={[cardThickness, cardHeight]} />
+        <meshStandardMaterial color="#1a1a1a" />
+      </mesh>
+      <mesh position={[0, cardHeight / 2, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[cardWidth, cardThickness]} />
+        <meshStandardMaterial color="#1a1a1a" />
+      </mesh>
+      <mesh position={[0, -cardHeight / 2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[cardWidth, cardThickness]} />
+        <meshStandardMaterial color="#1a1a1a" />
+      </mesh>
+
+      {/* Glow effect around card edges */}
       {hovered && (
-        <RoundedBox
-          args={[2.6, 3.6, 0.04]}
-          radius={0.12}
-          smoothness={4}
-          position={[0, 0, 0.01]}
-        >
-          <meshStandardMaterial
-            color={rarityColor}
-            emissive={rarityColor}
-            emissiveIntensity={glowIntensity * 1.5}
-            transparent
-            opacity={0.4}
-          />
-        </RoundedBox>
+        <>
+          <mesh position={[0, 0, cardThickness / 2 + 0.01]}>
+            <planeGeometry args={[cardWidth + 0.1, cardHeight + 0.1]} />
+            <meshStandardMaterial
+              color={rarityColor}
+              emissive={rarityColor}
+              emissiveIntensity={glowIntensity * 2}
+              transparent
+              opacity={0.3}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+          <mesh position={[0, 0, -cardThickness / 2 - 0.01]} rotation={[0, Math.PI, 0]}>
+            <planeGeometry args={[cardWidth + 0.1, cardHeight + 0.1]} />
+            <meshStandardMaterial
+              color={rarityColor}
+              emissive={rarityColor}
+              emissiveIntensity={glowIntensity * 2}
+              transparent
+              opacity={0.3}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        </>
       )}
     </group>
   );
