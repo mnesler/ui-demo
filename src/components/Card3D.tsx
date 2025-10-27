@@ -61,14 +61,24 @@ export function Card3D({ card, position, rotation, effect }: Card3DProps) {
         onPointerOut={() => setHovered(false)}
       >
         <planeGeometry args={[cardWidth, cardHeight]} />
-        <meshStandardMaterial
+        <meshBasicMaterial
           map={texture}
-          emissive={rarityColor}
-          emissiveIntensity={glowIntensity}
-          metalness={0.1}
-          roughness={0.3}
+          toneMapped={false}
         />
       </mesh>
+
+      {/* Emissive glow layer for the card front */}
+      {hovered && (
+        <mesh position={[0, 0, cardThickness / 2 + 0.001]}>
+          <planeGeometry args={[cardWidth, cardHeight]} />
+          <meshBasicMaterial
+            color={rarityColor}
+            transparent
+            opacity={glowIntensity * 0.15}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      )}
 
       {/* Card back face (black) */}
       <mesh position={[0, 0, -cardThickness / 2]} rotation={[0, Math.PI, 0]}>
