@@ -63,6 +63,14 @@ export function CardEffects({ effect, hovered, cardWidth, cardHeight }: CardEffe
     return { positions, colors };
   }, [effect, cardWidth, cardHeight]);
 
+  // Create geometry with buffer attributes - MUST be before conditional return
+  const geometry = useMemo(() => {
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    return geom;
+  }, [positions, colors]);
+
   // Animate particles
   useFrame((state) => {
     if (!particlesRef.current || !hovered) return;
@@ -136,14 +144,6 @@ export function CardEffects({ effect, hovered, cardWidth, cardHeight }: CardEffe
   });
 
   if (!hovered) return null;
-
-  // Create geometry with buffer attributes
-  const geometry = useMemo(() => {
-    const geom = new THREE.BufferGeometry();
-    geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    return geom;
-  }, [positions, colors]);
 
   return (
     <points ref={particlesRef} geometry={geometry}>
