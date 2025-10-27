@@ -60,13 +60,9 @@ export function CardScene({ cards }: CardSceneProps) {
           return <Card3D key={card.id} card={card} position={position} rotation={rotation} effect={effect} />;
         })}
 
-        {/* Camera controls */}
+        {/* Camera controls - disabled to prevent camera movement */}
         <OrbitControls
-          enableDamping
-          dampingFactor={0.05}
-          minDistance={8}
-          maxDistance={25}
-          target={[0, 0, 0]}
+          enabled={false}
         />
 
         {/* Post-processing effects */}
