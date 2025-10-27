@@ -98,59 +98,46 @@ export function Card3D({ card, position, rotation, effect }: Card3DProps) {
         <meshStandardMaterial color="#1a1a1a" />
       </mesh>
 
-      {/* Glow effect around card edges */}
+      {/* Glow effect around card edges - only on back */}
       {hovered && (
-        <>
-          <mesh position={[0, 0, cardThickness / 2 + 0.01]}>
-            <planeGeometry args={[cardWidth + 0.1, cardHeight + 0.1]} />
-            <meshStandardMaterial
-              color={rarityColor}
-              emissive={rarityColor}
-              emissiveIntensity={glowIntensity * 2}
-              transparent
-              opacity={0.3}
-              side={THREE.DoubleSide}
-            />
-          </mesh>
-          <mesh position={[0, 0, -cardThickness / 2 - 0.01]} rotation={[0, Math.PI, 0]}>
-            <planeGeometry args={[cardWidth + 0.1, cardHeight + 0.1]} />
-            <meshStandardMaterial
-              color={rarityColor}
-              emissive={rarityColor}
-              emissiveIntensity={glowIntensity * 2}
-              transparent
-              opacity={0.3}
-              side={THREE.DoubleSide}
-            />
-          </mesh>
-        </>
-      )}
-
-      {/* Ice effect overlay */}
-      {hovered && effect === 'ice' && (
-        <mesh position={[0, 0, cardThickness / 2 + 0.02]}>
-          <planeGeometry args={[cardWidth, cardHeight]} />
+        <mesh position={[0, 0, -cardThickness / 2 - 0.01]} rotation={[0, Math.PI, 0]}>
+          <planeGeometry args={[cardWidth + 0.15, cardHeight + 0.15]} />
           <meshStandardMaterial
-            color="#88ccff"
-            emissive="#88ccff"
-            emissiveIntensity={0.8}
+            color="#666666"
+            emissive="#888888"
+            emissiveIntensity={glowIntensity * 0.5}
             transparent
-            opacity={0.3}
+            opacity={0.2}
             side={THREE.DoubleSide}
           />
         </mesh>
       )}
 
-      {/* Fire effect overlay */}
-      {hovered && effect === 'fire' && (
-        <mesh position={[0, 0, cardThickness / 2 + 0.02]}>
-          <planeGeometry args={[cardWidth, cardHeight]} />
+      {/* Ice effect overlay - on back */}
+      {hovered && effect === 'ice' && (
+        <mesh position={[0, 0, -cardThickness / 2 - 0.02]} rotation={[0, Math.PI, 0]}>
+          <planeGeometry args={[cardWidth + 0.2, cardHeight + 0.2]} />
           <meshStandardMaterial
-            color="#ff6600"
-            emissive="#ff3300"
-            emissiveIntensity={1.5}
+            color="#4488aa"
+            emissive="#6699cc"
+            emissiveIntensity={0.4}
             transparent
-            opacity={0.25}
+            opacity={0.2}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      )}
+
+      {/* Fire effect overlay - on back */}
+      {hovered && effect === 'fire' && (
+        <mesh position={[0, 0, -cardThickness / 2 - 0.02]} rotation={[0, Math.PI, 0]}>
+          <planeGeometry args={[cardWidth + 0.2, cardHeight + 0.2]} />
+          <meshStandardMaterial
+            color="#cc5500"
+            emissive="#dd6600"
+            emissiveIntensity={0.6}
+            transparent
+            opacity={0.2}
             side={THREE.DoubleSide}
           />
         </mesh>
