@@ -103,11 +103,11 @@ export function Card3D({ card, position, rotation, effect }: Card3DProps) {
         <mesh position={[0, 0, -cardThickness / 2 - 0.01]} rotation={[0, Math.PI, 0]}>
           <planeGeometry args={[cardWidth + 0.15, cardHeight + 0.15]} />
           <meshStandardMaterial
-            color="#aaaaaa"
-            emissive="#cccccc"
-            emissiveIntensity={glowIntensity * 1.0}
+            color="#ff0000"
+            emissive="#ff4444"
+            emissiveIntensity={glowIntensity * 2.0}
             transparent
-            opacity={0.4}
+            opacity={0.8}
             side={THREE.DoubleSide}
           />
         </mesh>
@@ -118,11 +118,11 @@ export function Card3D({ card, position, rotation, effect }: Card3DProps) {
         <mesh position={[0, 0, -cardThickness / 2 - 0.02]} rotation={[0, Math.PI, 0]}>
           <planeGeometry args={[cardWidth + 0.2, cardHeight + 0.2]} />
           <meshStandardMaterial
-            color="#6699cc"
-            emissive="#88bbee"
-            emissiveIntensity={0.8}
+            color="#ff0000"
+            emissive="#ff4444"
+            emissiveIntensity={1.6}
             transparent
-            opacity={0.4}
+            opacity={0.8}
             side={THREE.DoubleSide}
           />
         </mesh>
@@ -133,11 +133,11 @@ export function Card3D({ card, position, rotation, effect }: Card3DProps) {
         <mesh position={[0, 0, -cardThickness / 2 - 0.02]} rotation={[0, Math.PI, 0]}>
           <planeGeometry args={[cardWidth + 0.2, cardHeight + 0.2]} />
           <meshStandardMaterial
-            color="#ee6600"
-            emissive="#ff8800"
-            emissiveIntensity={1.2}
+            color="#ff0000"
+            emissive="#ff4444"
+            emissiveIntensity={2.4}
             transparent
-            opacity={0.4}
+            opacity={0.8}
             side={THREE.DoubleSide}
           />
         </mesh>
