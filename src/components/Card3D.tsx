@@ -1,10 +1,11 @@
 import { useRef, useState, useMemo } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { CardData } from '../types';
 import { RARITY_COLORS, RARITY_GLOW_INTENSITY } from '../types';
 import type { CardEffect } from '../effects/cardEffects';
 import { CardEffects } from './CardEffects';
+import type { ThreeEvent } from '@react-three/fiber';
 
 interface Card3DProps {
   card: CardData;
@@ -16,6 +17,9 @@ interface Card3DProps {
 export function Card3D({ card, position, rotation, effect }: Card3DProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset] = useState(new THREE.Vector3());
+  const dragPlaneRef = useRef(new THREE.Plane(new THREE.Vector3(0, 0, 1), 0));
 
   // Load texture and ensure it doesn't repeat or stretch
   const texture = useMemo(() => {
@@ -30,15 +34,21 @@ export function Card3D({ card, position, rotation, effect }: Card3DProps) {
   useFrame((state) => {
     if (!groupRef.current) return;
 
-    // Gentle floating animation
-    if (hovered) {
-      groupRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 2) * 0.1;
-    } else {
-      groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, position[1], 0.1);
+    if (!isDragging) {
+      // Gentle floating animation
+      if (hovered) {
+        groupRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 2) * 0.1;
+      } else {
+        groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, position[1], 0.1);
+      }
+
+      // Snap back to original position when not dragging
+      groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, position[0], 0.15);
+      groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, position[2], 0.15);
     }
 
     // Scale up more on hover - each card gets bigger
-    const targetScale = hovered ? 1.4 : 1;
+    const targetScale = hovered || isDragging ? 1.4 : 1;
     const currentScale = groupRef.current.scale.x;
     const newScale = THREE.MathUtils.lerp(currentScale, targetScale, 0.1);
     groupRef.current.scale.set(newScale, newScale, newScale);
@@ -52,6 +62,42 @@ export function Card3D({ card, position, rotation, effect }: Card3DProps) {
   const cardHeight = 3.5;
   const cardThickness = 0.05;
 
+  const { raycaster } = useThree();
+
+  // Handle drag start
+  const handlePointerDown = (event: ThreeEvent<PointerEvent>) => {
+    event.stopPropagation();
+    setIsDragging(true);
+
+    if (groupRef.current) {
+      // Calculate intersection point
+      const intersectionPoint = new THREE.Vector3();
+      raycaster.ray.intersectPlane(dragPlaneRef.current, intersectionPoint);
+
+      // Store offset from card position to click point
+      dragOffset.subVectors(groupRef.current.position, intersectionPoint);
+    }
+  };
+
+  // Handle dragging
+  const handlePointerMove = (event: ThreeEvent<PointerEvent>) => {
+    if (isDragging && groupRef.current) {
+      event.stopPropagation();
+
+      // Calculate new position based on mouse
+      const intersectionPoint = new THREE.Vector3();
+      raycaster.ray.intersectPlane(dragPlaneRef.current, intersectionPoint);
+
+      // Update card position
+      groupRef.current.position.copy(intersectionPoint.add(dragOffset));
+    }
+  };
+
+  // Handle drag end
+  const handlePointerUp = () => {
+    setIsDragging(false);
+  };
+
   return (
     <group ref={groupRef} position={position} rotation={rotation}>
       {/* Card front face with texture */}
@@ -59,6 +105,9 @@ export function Card3D({ card, position, rotation, effect }: Card3DProps) {
         position={[0, 0, cardThickness / 2]}
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
       >
         <planeGeometry args={[cardWidth, cardHeight]} />
         <meshStandardMaterial
