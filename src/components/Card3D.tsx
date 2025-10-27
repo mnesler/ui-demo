@@ -103,8 +103,14 @@ export function Card3D({ card, position, rotation, effect }: Card3DProps) {
       {/* Card front face with texture */}
       <mesh
         position={[0, 0, cardThickness / 2]}
-        onPointerOver={() => setHovered(true)}
-        onPointerOut={() => setHovered(false)}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setHovered(true);
+        }}
+        onPointerOut={(e) => {
+          e.stopPropagation();
+          setHovered(false);
+        }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
